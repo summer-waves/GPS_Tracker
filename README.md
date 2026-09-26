@@ -2,9 +2,6 @@
 
 A full-stack, consent-based location-sharing and geospatial analytics platform. A device (a phone's browser, or a simulator) reports its own GPS location only while sharing is explicitly turned on; a FastAPI backend authenticates requests, stores the data in Postgres/PostGIS, and a set of ML models turn raw pings into distance/speed stats, auto-detected frequent places, discrete trips, geofence entry/exit events, anomaly flags, and ETA predictions -- all viewable on a live Plotly Dash dashboard.
 
-**Live backend:** https://gps-detect-tracker.fly.dev
-**API docs (Swagger):** https://gps-detect-tracker.fly.dev/docs
-**Web GPS client:** https://gps-detect-tracker.fly.dev/client/
 
 > The dashboard (the map/tabs UI) currently runs locally (`dashboard/app.py`) and points at the live backend above -- it is not yet deployed as a public site.
 
@@ -244,9 +241,3 @@ A few real debugging findings worth knowing about, not just the feature list:
 - **`IsolationForest(contamination=0.05)` always flags ~5% of points**, even in a single short, uneventful session -- that's the parameter's job, not a bug. It's a meaningful caveat for any fixed-contamination anomaly model on a small dataset.
 - **A self-share (sharing a device with its own owner) caused duplicate rows** in the `GET /devices` response, since owned and shared devices were concatenated without deduplication. Fixed by deduplicating the combined result by device ID.
 - **A Dash callback bound to a dynamically-created "Logout" button fired once automatically** the moment the button was first rendered (not on an actual click), silently resetting the auth token right after a successful login. Fixed by guarding the callback against a falsy `n_clicks`.
-
----
-
-## License
-
-MIT (or your preferred license -- add a LICENSE file if you want this enforced)
