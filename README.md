@@ -8,26 +8,18 @@ A full-stack, consent-based location-sharing and geospatial analytics platform. 
 ---
 
 ## Screenshots
-
-<!--
-Add your own screenshots here before pushing. Suggested shots and where to save them:
-
-  screenshots/live-map.png         -- Live Map tab with a real route
-  screenshots/analytics.png        -- Analytics tab: KPIs + frequent-locations cluster + trips table
-  screenshots/geofences.png        -- Geofences tab with a defined zone and an entry/exit log
-  screenshots/anomalies.png        -- Anomalies tab showing flagged points
-  screenshots/eta.png              -- ETA tab with a prediction result
-  screenshots/sharing.png          -- Sharing tab with a granted viewer
-  screenshots/swagger.png          -- Swagger docs (https://gps-detect-tracker.fly.dev/docs)
-
-Then uncomment the lines below (or replace with your own paths):
--->
-<!-- ![Live Map](screenshots/live-map.png) -->
-<!-- ![Analytics](screenshots/analytics.png) -->
-<!-- ![Geofences](screenshots/geofences.png) -->
-<!-- ![Anomalies](screenshots/anomalies.png) -->
-<!-- ![ETA](screenshots/eta.png) -->
-<!-- ![Sharing](screenshots/sharing.png) -->
+Live Map tab with a real route
+[Live Map](screenshots/live-map.png)
+Analytics tab: KPIs + frequent-locations cluster + trips table
+[Analytics](screenshots/analytics.png)
+Geofences tab with a defined zone and an entry/exit log
+[Geofences](screenshots/geofences.png)
+Anomalies tab showing flagged points
+[Anomalies](screenshots/anomalies.png)
+ETA tab with a prediction result
+[ETA](screenshots/eta.png)
+Sharing tab with a granted viewer
+[Sharing](screenshots/sharing.png)
 
 ---
 
