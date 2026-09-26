@@ -2,9 +2,6 @@
 
 A full-stack, consent-based location-sharing and geospatial analytics platform. A device (a phone's browser, or a simulator) reports its own GPS location only while sharing is explicitly turned on; a FastAPI backend authenticates requests, stores the data in Postgres/PostGIS, and a set of ML models turn raw pings into distance/speed stats, auto-detected frequent places, discrete trips, geofence entry/exit events, anomaly flags, and ETA predictions -- all viewable on a live Plotly Dash dashboard.
 
-
-> The dashboard (the map/tabs UI) currently runs locally (`dashboard/app.py`) and points at the live backend above -- it is not yet deployed as a public site.
-
 ---
 
 ## Screenshots
