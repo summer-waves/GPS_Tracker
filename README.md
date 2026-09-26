@@ -9,17 +9,17 @@ A full-stack, consent-based location-sharing and geospatial analytics platform. 
 
 ## Screenshots
 Live Map tab with a real route
-[Live Map](screenshots/live-map.png)
+![Live Map](screenshots/live-map.png)
 Analytics tab: KPIs + frequent-locations cluster + trips table
-[Analytics](screenshots/analytics.png)
+![Analytics](screenshots/analytics.png)
 Geofences tab with a defined zone and an entry/exit log
-[Geofences](screenshots/geofences.png)
+![Geofences](screenshots/geofences.png)
 Anomalies tab showing flagged points
-[Anomalies](screenshots/anomalies.png)
+![Anomalies](screenshots/anomalies.png)
 ETA tab with a prediction result
-[ETA](screenshots/eta.png)
+![ETA](screenshots/eta.png)
 Sharing tab with a granted viewer
-[Sharing](screenshots/sharing.png)
+![Sharing](screenshots/sharing.png)
 
 ---
 
