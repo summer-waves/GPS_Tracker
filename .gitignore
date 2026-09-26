@@ -1,0 +1,14 @@
+# Virtual environments
+**/venv/
+**/__pycache__/
+*.pyc
+
+# Secrets -- never commit real credentials
+.env
+
+# Local dev database (SQLite) -- production data lives in Supabase, not here
+backend/gps_tracker.db
+
+# OS/editor cruft
+.DS_Store
+*.log

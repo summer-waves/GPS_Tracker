@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real GPS Client</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 480px; margin: 40px auto; padding: 0 16px; }
+  h2 { margin-bottom: 4px; }
+  .sub { color: #666; margin-top: 0; }
+  input { width: 100%; padding: 10px; margin: 6px 0 16px; box-sizing: border-box; font-size: 16px; }
+  button { width: 100%; padding: 14px; font-size: 16px; border: none; border-radius: 8px; cursor: pointer; margin-bottom: 10px; }
+  #startBtn { background: #16a34a; color: white; }
+  #stopBtn { background: #dc2626; color: white; }
+  #log { background: #f4f4f5; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 13px; white-space: pre-wrap; max-height: 240px; overflow-y: auto; }
+  .status-on { color: #16a34a; font-weight: bold; }
+  .status-off { color: #dc2626; font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h2>Real GPS Client</h2>
+<p class="sub">Sends this device's <em>real</em> location to your backend. No app install needed.</p>
+
+<label>API URL</label>
+<input id="apiUrl" value="">
+
+<script>document.getElementById("apiUrl").value = window.location.origin;</script>
+
+<label>Account Username</label>
+<input id="authUsername" value="marco">
+
+<label>Account Password</label>
+<input id="authPassword" type="password" value="changeme123">
+
+<label>Device label</label>
+<input id="deviceName" value="Marco's Real Phone">
+
+<p>Status: <span id="statusText" class="status-off">Sharing OFF</span></p>
+
+<button id="startBtn" onclick="startSharing()">Start Sharing</button>
+<button id="stopBtn" onclick="stopSharing()">Stop Sharing</button>
+
+<div id="log">Waiting to start...</div>
+
+<script>
+let deviceId = null;
+let watchId = null;
+let authToken = null;
+
+function log(msg) {
+  const el = document.getElementById("log");
+  const time = new Date().toLocaleTimeString();
+  el.textContent = `[${time}] ${msg}\n` + el.textContent;
+}
+
+async function loginOrRegister() {
+  const apiUrl = document.getElementById("apiUrl").value;
+  const username = document.getElementById("authUsername").value;
+  const password = document.getElementById("authPassword").value;
+
+  const form = new URLSearchParams();
+  form.set("username", username);
+  form.set("password", password);
+
+  let resp = await fetch(`${apiUrl}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: form,
+  });
+
+  if (!resp.ok) {
+    // No such user yet -- register, then log in.
+    const reg = await fetch(`${apiUrl}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    if (!reg.ok) throw new Error("Could not register account");
+
+    resp = await fetch(`${apiUrl}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form,
+    });
+  }
+
+  if (!resp.ok) throw new Error("Login failed");
+  const data = await resp.json();
+  return data.access_token;
+}
+
+async function registerDevice() {
+  const apiUrl = document.getElementById("apiUrl").value;
+  const username = document.getElementById("authUsername").value;
+  const name = document.getElementById("deviceName").value;
+
+  const resp = await fetch(`${apiUrl}/devices`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+    body: JSON.stringify({ device_name: name, owner_name: username }),
+  });
+  if (!resp.ok) throw new Error("Failed to register device");
+  const data = await resp.json();
+  return data.id;
+}
+
+async function setSharing(id, isSharing) {
+  const apiUrl = document.getElementById("apiUrl").value;
+  await fetch(`${apiUrl}/devices/${id}/sharing`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${authToken}` },
+    body: JSON.stringify({ is_sharing: isSharing }),
+  });
+}
+
+async function sendPing(position) {
+  const apiUrl = document.getElementById("apiUrl").value;
+  const { latitude, longitude, accuracy, speed } = position.coords;
+
+  try {
+    const resp = await fetch(`${apiUrl}/locations`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        device_id: deviceId,
+        latitude,
+        longitude,
+        accuracy,
+        speed: speed || null,
+      }),
+    });
+    if (resp.ok) {
+      log(`Sent: lat=${latitude.toFixed(6)} lon=${longitude.toFixed(6)} acc=${accuracy?.toFixed(1)}m`);
+    } else {
+      const err = await resp.json();
+      log(`Rejected: ${err.detail}`);
+    }
+  } catch (e) {
+    log(`Error sending ping: ${e.message}`);
+  }
+}
+
+async function startSharing() {
+  if (!navigator.geolocation) {
+    log("Geolocation is not supported by this browser.");
+    return;
+  }
+
+  try {
+    if (!authToken) {
+      authToken = await loginOrRegister();
+      log("Logged in.");
+    }
+    if (!deviceId) {
+      deviceId = await registerDevice();
+      log(`Registered device id=${deviceId}`);
+    }
+    await setSharing(deviceId, true);
+
+    document.getElementById("statusText").textContent = "Sharing ON";
+    document.getElementById("statusText").className = "status-on";
+
+    watchId = navigator.geolocation.watchPosition(
+      sendPing,
+      (err) => log(`Geolocation error: ${err.message}`),
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 10000 }
+    );
+    log("Started watching real location.");
+  } catch (e) {
+    log(`Error: ${e.message}`);
+  }
+}
+
+async function stopSharing() {
+  if (watchId !== null) {
+    navigator.geolocation.clearWatch(watchId);
+    watchId = null;
+  }
+  if (deviceId) {
+    await setSharing(deviceId, false);
+  }
+  document.getElementById("statusText").textContent = "Sharing OFF";
+  document.getElementById("statusText").className = "status-off";
+  log("Stopped sharing.");
+}
+</script>
+
+</body>
+</html>
